@@ -33,7 +33,7 @@ class case_existing_file(object):
         return os.path.isfile(handler.full_path)
 
     def act(self, handler):
-        handler.handler_file(handler.full_path)
+        handler.handle_file(handler.full_path)
 
 
 class case_directory_index_file(object):
@@ -45,7 +45,7 @@ class case_directory_index_file(object):
         return os.path.join(handler.full_path, 'index.html')
 
     def test(self, handler):
-        return os.path.isdir(handler.full_path) and os.path.isfi(
+        return os.path.isdir(handler.full_path) and os.path.isfile(
             self.index_path(handler))
 
     def act(self, handler):
@@ -115,7 +115,7 @@ class ResquestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         try:
             self.full_path = os.getcwd() + self.path
 
-            for case in self.Case:
+            for case in self.Cases:
                 if case.test(self):
                     case.act(self)
                     break
@@ -147,7 +147,7 @@ class ResquestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def handle_error(self, msg):
         content = self.Error_Page.format(path=self.path, msg=msg)
-        self.sent_content(content, 404)
+        self.send_content(content, 404)
 
     def send_content(self, content, status=200):
         self.send_response(status)

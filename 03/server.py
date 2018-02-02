@@ -33,7 +33,7 @@ class case_existing_file(object):
         return os.path.isfile(handler.full_path)
 
     def act(self, handler):
-        handler.handler_file(handler.full_path)
+        handler.handle_file(handler.full_path)
 
 
 class case_always_fail(object):
@@ -52,7 +52,7 @@ class ResquestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """
     docstring for ResquestHandler
     """
-    Cases = [case_no_file(), case_existing_file(), case_always_fail(())]
+    Cases = [case_no_file(), case_existing_file(), case_always_fail()]
 
     Error_Page = """\
         <html>
@@ -67,7 +67,7 @@ class ResquestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         try:
             self.full_path = os.getcwd() + self.path
 
-            for case in self.Case:
+            for case in self.Cases:
                 if case.test(self):
                     case.act(self)
                     break
@@ -86,7 +86,7 @@ class ResquestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def handle_error(self, msg):
         content = self.Error_Page.format(path=self.path, msg=msg)
-        self.sent_content(content, 404)
+        self.send_content(content, 404)
 
     def send_content(self, content, status=200):
         self.send_response(status)
