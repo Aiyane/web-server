@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import BaseHTTPServer
 
 
@@ -40,7 +39,7 @@ class case_existing_file(object):
     """
 
     def test(self, handler):
-        os.path.exists(handler.full_path)
+        return os.path.isfile(handler.full_path)
 
     def act(self, handler):
         handler.handle_file(handler.full_path)
@@ -117,7 +116,6 @@ class ResquestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             self.full_path = os.getcwd() + self.path
-
             for case in self.Cases:
                 if case.test(self):
                     case.act(self)
@@ -154,3 +152,20 @@ class ResquestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         data = child_stdout.read()
         child_stdout.close()
         self.send_content(data)
+
+    def handle_error(self, msg):
+        content = self.Error_Page.format(path=self.path, msg=msg)
+        self.send_content(content)
+
+    def send_content(self, content, status=200):
+        self.send_response(status)
+        self.send_header("Content-type", "text/html")
+        self.send_header("Content-Length", str(len(content)))
+        self.end_headers()
+        self.wfile.write(content)
+
+
+if __name__ == "__main__":
+    serverAddress = ('', 8080)
+    server = BaseHTTPServer.HTTPServer(serverAddress, ResquestHandler)
+    server.serve_forever()
